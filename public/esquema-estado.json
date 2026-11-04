@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://estrategia-inmobiliaria.example/live-collab/estado.json",
+  "title": "Estado de Live-collab",
+  "description": "Documento que un asistente puede leer o escribir. En un sitio estático no hay un GET dinámico del lienzo en vivo: el estado vive en los navegadores de la sala y se sincroniza con Yjs. La página expone window.liveCollab y acepta este JSON en el panel o en el fragmento #notas=.",
+  "type": "object",
+  "additionalProperties": true,
+  "properties": {
+    "version": { "const": 1 },
+    "sala": { "type": "string" },
+    "notas": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "required": ["texto"],
+        "properties": {
+          "id": { "type": "string", "maxLength": 80 },
+          "texto": { "type": "string", "maxLength": 4000 },
+          "x": { "type": "number" },
+          "y": { "type": "number" },
+          "color": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" }
+        }
+      }
+    },
+    "trazos": {
+      "type": "array",
+      "maxItems": 2000,
+      "items": {
+        "type": "object",
+        "required": ["puntos"],
+        "properties": {
+          "id": { "type": "string" },
+          "color": { "type": "string" },
+          "grosor": { "type": "number", "minimum": 0.5, "maximum": 64 },
+          "puntos": {
+            "type": "array",
+            "maxItems": 20000,
+            "items": {
+              "type": "object",
+              "required": ["x", "y"],
+              "properties": {
+                "x": { "type": "number" },
+                "y": { "type": "number" },
+                "p": { "type": "number", "description": "Grosor relativo, cerca de 1 con presión plena del S Pen." }
+              }
+            }
+          }
+        }
+      }
+    },
+    "escenario": {
+      "type": "object",
+      "properties": {
+        "precio": { "type": "number", "minimum": 0 },
+        "metros": { "type": "number", "exclusiveMinimum": 0 },
+        "enganchePct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "tasaAnual": { "type": "number", "minimum": 0 },
+        "plazoAnios": { "type": "number", "exclusiveMinimum": 0 }
+      }
+    }
+  }
+}
