@@ -1,121 +1,25 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Live Collab</title>
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#eef2f7}
-header{background:#172554;color:white;padding:12px;text-align:center}
-h2{margin:0;font-size:20px}
-.toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:10px;background:white}
-button,input{min-height:42px}
-button{border:1px solid #ccc;border-radius:8px;padding:8px;background:#f8fafc}
-button.active{background:#bfdbfe;border-color:#2563eb}
-#board{display:block;width:100%;height:calc(100dvh - 150px);background:white;touch-action:none}
-</style>
-</head>
-<body>
-<header><h2>🚀 Live Collab</h2></header>
-<div class="toolbar">
-<input id="color" type="color" value="#172554" aria-label="Color">
-<button id="pen" class="active">✏️ Dibujar</button>
-<button id="eraser">🧽 Borrar</button>
-<button id="undo">↶ Deshacer</button>
-<button id="clear">🗑️ Limpiar</button>
-<button id="save">💾 Guardar</button>
-</div>
-<canvas id="board"></canvas>
-<script>
-const canvas=document.getElementById("board");
-const ctx=canvas.getContext("2d");
-const color=document.getElementById("color");
-let tool="pen",drawing=false,points=[],history=[];
-let current=null;
-
-function resize(){
- const old=document.createElement("canvas");
- old.width=canvas.width;old.height=canvas.height;
- old.getContext("2d").drawImage(canvas,0,0);
- const rect=canvas.getBoundingClientRect();
- canvas.width=Math.round(rect.width*devicePixelRatio);
- canvas.height=Math.round(rect.height*devicePixelRatio);
- ctx.drawImage(old,0,0,canvas.width,canvas.height);
-}
-resize();
-window.addEventListener("resize",resize);
-
-function snapshot(){
- history.push(ctx.getImageData(0,0,canvas.width,canvas.height));
- if(history.length>25)history.shift();
-}
-function position(e){
- const r=canvas.getBoundingClientRect();
- return {
- x:(e.clientX-r.left)*canvas.width/r.width,
- y:(e.clientY-r.top)*canvas.height/r.height
- };
-}
-function start(e){
- if(e.pointerType==="touch" && !e.isPrimary)return;
- e.preventDefault();
- snapshot();
- drawing=true;
- canvas.setPointerCapture(e.pointerId);
- current=position(e);
- ctx.lineCap="round";
- ctx.lineJoin="round";
- ctx.strokeStyle=tool==="eraser"?"white":color.value;
- ctx.fillStyle=ctx.strokeStyle;
- ctx.lineWidth=(tool==="eraser"?24:3)*devicePixelRatio;
- ctx.beginPath();
- ctx.arc(current.x,current.y,ctx.lineWidth/2,0,Math.PI*2);
- ctx.fill();
-}
-function move(e){
- if(!drawing)return;
- e.preventDefault();
- const p=position(e);
- ctx.beginPath();
- ctx.moveTo(current.x,current.y);
- ctx.lineTo(p.x,p.y);
- ctx.stroke();
- current=p;
-}
-function end(){drawing=false;current=null}
-canvas.addEventListener("pointerdown",start);
-canvas.addEventListener("pointermove",move);
-canvas.addEventListener("pointerup",end);
-canvas.addEventListener("pointercancel",end);
-
-function selectTool(name){
- tool=name;
- document.getElementById("pen").classList.toggle("active",name==="pen");
- document.getElementById("eraser").classList.toggle("active",name==="eraser");
-}
-document.getElementById("pen").onclick=()=>selectTool("pen");
-document.getElementById("eraser").onclick=()=>selectTool("eraser");
-document.getElementById("undo").onclick=()=>{
- if(history.length)ctx.putImageData(history.pop(),0,0);
-};
-document.getElementById("clear").onclick=()=>{
- snapshot();
- ctx.clearRect(0,0,canvas.width,canvas.height);
-};
-document.getElementById("save").onclick=()=>{
- const output=document.createElement("canvas");
- output.width=canvas.width;output.height=canvas.height;
- const c=output.getContext("2d");
- c.fillStyle="white";
- c.fillRect(0,0,output.width,output.height);
- c.drawImage(canvas,0,0);
- const a=document.createElement("a");
- a.download="live-collab.png";
- a.href=output.toDataURL("image/png");
- a.click();
-};
-</script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f3ecdf" />
+    <meta
+      name="description"
+      content="Lienzo colaborativo de Estrategia Inmobiliaria. Dibuja con S Pen, calcula enganche y precio por m², y comparte la sala en vivo."
+    />
+    <title>Live-collab · Estrategia Inmobiliaria</title>
+    <link rel="icon" href="%BASE_URL%favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,560;9..144,650&family=Outfit:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="raiz"></div>
+    <noscript>Live-collab necesita JavaScript para el lienzo y la sincronización.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
